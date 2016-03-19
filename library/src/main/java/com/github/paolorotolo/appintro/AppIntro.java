@@ -52,7 +52,7 @@ public abstract class AppIntro extends AppCompatActivity {
     protected int savedCurrentItem;
     protected ArrayList<PermissionObject> permissionsArray = new ArrayList<>();
     private static final int PERMISSIONS_REQUEST_ALL_PERMISSIONS = 1;
-
+    boolean postInit;
     enum TransformType {
         FLOW,
         DEPTH,
@@ -172,6 +172,7 @@ public abstract class AppIntro extends AppCompatActivity {
         setScrollDurationFactor(DEFAULT_SCROLL_DURATION_FACTOR);
 
         init(savedInstanceState);
+        postInit=true;
         slidesNumber = fragments.size();
 
         if (slidesNumber == 1) {
@@ -228,8 +229,23 @@ public abstract class AppIntro extends AppCompatActivity {
             mController.setUnselectedIndicatorColor(unselectedIndicatorColor);
     }
 
+    private void updateController() {
+        FrameLayout indicatorContainer = (FrameLayout) findViewById(R.id.indicator_container);
+        indicatorContainer.removeAllViews();
+        indicatorContainer.addView(mController.newInstance(this));
+
+        mController.initialize(slidesNumber);
+        if (selectedIndicatorColor != DEFAULT_COLOR)
+            mController.setSelectedIndicatorColor(selectedIndicatorColor);
+        if (unselectedIndicatorColor != DEFAULT_COLOR)
+            mController.setUnselectedIndicatorColor(unselectedIndicatorColor);
+    }
     public void addSlide(@NonNull Fragment fragment) {
         fragments.add(fragment);
+        if(postInit){
+            slidesNumber++;
+            updateController();    
+        }
         mPagerAdapter.notifyDataSetChanged();
     }
 
